@@ -1,30 +1,54 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UploadedFile,
+  UseInterceptors,
+  UploadedFiles,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
+import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Post('upload')
+  @UseInterceptors(AnyFilesInterceptor())
+  uploadFile(@UploadedFiles() files: Express.Multer.File[]) {
+    console.log(files);
+  }
+
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    const user = {
+      ...createUserDto,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    return await this.userService.create(user);
   }
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  async findAll(): Promise<User[]> {
+    return await this.userService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+    return this.userService.findOneById(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+    return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')

@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    let user = await this.findOneByUsername(createUserDto.username);
+    if (user) {
+      throw new BadRequestException('Username already exists');
+    }
+    user = await this.findOneByEmail(createUserDto.email);
+    if (user) {
+      throw new BadRequestException('Email already exists');
+    }
+    const newUser = await this.userRepository.create(createUserDto);
+    return await this.userRepository.save(newUser);
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll(): Promise<User[]> {
+    return await this.userRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOneByUsername(username: string): Promise<User> {
+    return await this.userRepository.findOneBy({ username });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findOneByEmail(email: string): Promise<User> {
+    return await this.userRepository.findOneBy({ email });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async findOneById(id: string): Promise<User> {
+    return this.userRepository.findOneBy({ id });
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<any> {
+    return await this.userRepository.update(id, updateUserDto);
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.userRepository.delete(id);
   }
 }
