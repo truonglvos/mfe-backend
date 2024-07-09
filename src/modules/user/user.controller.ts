@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UploadedFile,
   UseInterceptors,
   UploadedFiles,
 } from '@nestjs/common';
@@ -14,7 +13,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 export class UserController {
