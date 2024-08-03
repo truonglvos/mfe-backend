@@ -8,10 +8,10 @@ export class Builder {
   @Column({ nullable: true })
   indexElement?: number;
 
-  @Column({ nullable: true, type: 'longtext' })
+  @Column({ nullable: true, type: 'text' })
   source?: string;
 
-  @Column({ nullable: true, type: 'longtext' })
+  @Column({ nullable: true, type: 'text' })
   builderSource?: string;
 
   @Column({ nullable: true })
